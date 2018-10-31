@@ -16,6 +16,12 @@ class FlagNode: SCNNode {
 	var material = SCNMaterial()
 	var textureCoord: SCNGeometrySource
 	var flagAction: SCNAction!
+	/// Create a plane of width, height, vertex count and material diffuse
+	///
+	/// - Parameters:
+	///   - frameSize: physical width and height of the geometry
+	///   - xyCount: number of horizontal and vertical vertices
+	///   - diffuse: diffuse to be applied to the geometry; a color, image, or source of animated content.
 	init(frameSize: CGSize, xyCount: CGSize, diffuse: Any? = UIColor.white) {
 		let (verts, textureMap, inds) = SCNGeometry.PlaneParts(size: frameSize, xyCount: xyCount)
 		self.xyCount = xyCount
@@ -33,6 +39,7 @@ class FlagNode: SCNNode {
 		self.runAction(SCNAction.repeatForever(self.flagAction))
 	}
 
+	/// Update the geometry of this node with the vertices, texture coordinates and indices
 	func updateGeometry() {
 		let src = SCNGeometrySource(vertices: triPositions)
 		let geo = SCNGeometry(sources: [src, self.textureCoord], elements: [self.indices])
@@ -42,6 +49,9 @@ class FlagNode: SCNNode {
 
 
 
+	/// Wave the flag
+	///
+	/// - Parameter progress: time since animation started [0-3]
 	func animateFlag(progress: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)

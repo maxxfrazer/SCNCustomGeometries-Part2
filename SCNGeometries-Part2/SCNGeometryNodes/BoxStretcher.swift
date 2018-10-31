@@ -24,6 +24,13 @@ class BoxStretch: SCNNode {
 	var indices: SCNGeometryElement
 	var calculatedPositions: [CGFloat] = []
 	var material = SCNMaterial()
+	/// Create a cuboid that will automatically strech random vertices every 3 seconds
+	///
+	/// - Parameters:
+	///   - width: The width of the cuboid along the x-axis of its local coordinate space.
+	///   - height: The height of the cuboid along the y-axis of its local coordinate space
+	///   - length: The length of the box along the z-axis of its local coordinate space
+	///   - diffuse: The visual contents of the material property—a color, image, or source of animated content.
 	init(width: CGFloat, height: CGFloat, length: CGFloat, diffuse: Any? = UIColor.white) {
 		let (verts, inds) = SCNGeometry.BoxParts(width: width, height: height, length: length)
 		self.indices = inds
@@ -31,21 +38,26 @@ class BoxStretch: SCNNode {
 		super.init()
 		self.preCalculatePositions(count: 150)
 		self.material.diffuse.contents = diffuse
-		updateGeometry()
-		timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true, block: { (time) in
+		self.updateGeometry()
+		self.timer = Timer.scheduledTimer(withTimeInterval: 3, repeats: true, block: { (time) in
 			self.chooseCornerPull()
 		})
 	}
 
-	func updateGeometry() {
+	/// Update the geometry of this node with the vertices and indices
+	private func updateGeometry() {
 		let src = SCNGeometrySource(vertices: self.vertices)
 		let geo = SCNGeometry(sources: [src], elements: [self.indices])
 		geo.materials = [self.material]
 		self.geometry = geo
 	}
 
-	func chooseCornerPull() {
-		let myCorner = Int.random(in: 0..<8)
+	/// Chooses a random vertex and runs the animation on it
+	///
+	/// - Parameter corner: if you wanted to choose a specific corner, use the parameter
+	func chooseCornerPull(corner: Int? = nil) {
+		self.removeAllActions()
+		let myCorner = corner ?? Int.random(in: 0..<8)
 		let startPos = self.vertices[myCorner]
 		self.runAction(SCNAction.customAction(duration: 3) { (_, timeElapsed) in
 //			self.animateCorner(index: myCorner, startPos: startPos, timeElapsed: timeElapsed)
@@ -57,7 +69,12 @@ class BoxStretch: SCNNode {
 		}
 	}
 
-	func preCalculatePositions(count: Int = 100) {
+	/// Pre-calculate all the positions for a faster animation
+	///
+	/// - Parameter count: how many points to pre-calculate, default 100.
+	///   If you put more than 180 then you won't see much difference
+	///	  180 frames = 60 fps for 3 seconds
+	private func preCalculatePositions(count: Int = 100) {
 		var vals: [CGFloat] = [CGFloat].init(repeating: 1, count: count)
 		for n in 0..<count {
 			// this will get a number from [0-3]
@@ -67,13 +84,23 @@ class BoxStretch: SCNNode {
 		self.calculatedPositions = vals
 	}
 
-	func animateCorner(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
+	/// Update the position for the given vertex when a given time has passed
+	///
+	/// - Parameters:
+	///   - index: index in the vertices array to update
+	///   - startPos: resting position of the vertex
+	///   - timeElapsed: time since the animation started
+	private func animateCorner(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
 		let tNow = getTNow(with: timeElapsed)
 		self.vertices[index] = startPos * (1 + tNow)
 		self.updateGeometry()
 	}
 
-	func getTNow(with time: CGFloat) -> CGFloat {
+	/// Calculate the interpolation value given a time progression [0-3]
+	///
+	/// - Parameter time: time since animation started [0-3]
+	/// - Returns: interpolation to be applied to the vector
+	private func getTNow(with time: CGFloat) -> CGFloat {
 		if time < 0.5 {
 			return 1 - (1/(2*time + 1))
 		} else {
@@ -82,7 +109,13 @@ class BoxStretch: SCNNode {
 	}
 
 
-	func animateCornerPrecalc(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
+	/// Use the precalculated positions to animate the vertex
+	///
+	/// - Parameters:
+	///   - index: index in the vertices array to update
+	///   - startPos: resting position of the vertex
+	///   - timeElapsed: time since the animation started
+	private func animateCornerPrecalc(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
 		let tNow = getTNowPrecalc(at: timeElapsed / 3)
 		self.vertices[index] = startPos * (1 + tNow)
 		self.updateGeometry()
@@ -92,7 +125,7 @@ class BoxStretch: SCNNode {
 	///
 	/// - Parameter at: a value from [0-1] representing progression
 	/// - Returns: CGFloat that we want for the animation
-	func getTNowPrecalc(at: CGFloat) -> CGFloat {
+	private func getTNowPrecalc(at: CGFloat) -> CGFloat {
 		let sz = self.calculatedPositions.count
 		let percent = min(max(at, 0), 1) // ensure we have a value [0-1]
 		let index = Int(percent * CGFloat(sz - 1)) // if sz = 100, we now have [0-99]
