@@ -35,7 +35,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		lightNode.light = light
 		sceneView.pointOfView?.addChildNode(lightNode)
 
-		let newNode = FlagNode(frameSize: CGSize(width: 0.75, height: 0.375), xyCount: CGSize(width: 100, height: 2), diffuse: UIImage(named: "union_jack"))
+		let newNode = FlagNode(frameSize: CGSize(width: 0.75, height: 0.375), xyCount: CGSize(width: 100, height: 100), diffuse: UIImage(named: "union_jack"))
 		//		let newNode = BoxStretch(width: 0.3, height: 0.3, length: 0.3)
 		//		let newNode = SCNNode(geometry: SCNGeometry.Plane(width: 0.5, height: 1))
 		newNode.position.z = -1
@@ -59,31 +59,5 @@ class ViewController: UIViewController, ARSCNViewDelegate {
         
         // Pause the view's session
         sceneView.session.pause()
-    }
-
-    // MARK: - ARSCNViewDelegate
-    
-/*
-    // Override to create and configure nodes for anchors added to the view's session.
-    func renderer(_ renderer: SCNSceneRenderer, nodeFor anchor: ARAnchor) -> SCNNode? {
-        let node = SCNNode()
-     
-        return node
-    }
-*/
-    
-    func session(_ session: ARSession, didFailWithError error: Error) {
-        // Present an error message to the user
-        
-    }
-    
-    func sessionWasInterrupted(_ session: ARSession) {
-        // Inform the user that the session has been interrupted, for example, by presenting an overlay
-        
-    }
-    
-    func sessionInterruptionEnded(_ session: ARSession) {
-        // Reset tracking and/or remove existing anchors if consistent tracking is required
-        
     }
 }

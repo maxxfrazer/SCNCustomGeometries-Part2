@@ -33,7 +33,7 @@ class FlagNode: SCNNode {
 		self.flagAction = SCNAction.customAction(duration: 100000) { (_, progress) in
 			// using duration: Double.infinity or Double.greatestFiniteMagnitude breaks `progress`
 			// I'll try find some alternative that's nicer than `100000` later
-			self.animateFlag(progress: progress)
+			self.animateFlagMadness(progress: progress)
 		}
 		self.material.diffuse.contents = diffuse
 		self.runAction(SCNAction.repeatForever(self.flagAction))
@@ -49,9 +49,9 @@ class FlagNode: SCNNode {
 
 
 
-	/// Wave the flag
+	/// Wave the flag using just the x coordinate
 	///
-	/// - Parameter progress: time since animation started [0-3]
+	/// - Parameter progress: time since animation started [0-duration] in seconds
 	func animateFlag(progress: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
@@ -64,6 +64,46 @@ class FlagNode: SCNNode {
 			// only the x position is effecting the translation here,
 			// that's why we calculate before going to the second while loop
 			for y in 0..<yCount {
+				self.triPositions[y * xCount + x].z = newZ
+			}
+		}
+		self.updateGeometry()
+	}
+
+	/// Wave the flag, using x and y coordinates
+	///
+	/// - Parameter progress: time since animation started [0-duration] in seconds
+	func animateFlagXY(progress: CGFloat) {
+		let yCount = Int(xyCount.height)
+		let xCount = Int(xyCount.width)
+		let furthest = Float((yCount - 1) + (xCount - 1))
+		let tNow = progress
+		let waveScale = Float(0.1 * (min(tNow / 10, 1)))
+		for x in 0..<xCount {
+			let distanceX = Float(x) / furthest
+			for y in 0..<yCount {
+				let distance = distanceX + Float(y) / furthest
+				let newZ = waveScale * (sinf(15 * (Float(tNow) - distance)) * distanceX)
+				self.triPositions[y * xCount + x].z = newZ
+			}
+		}
+		self.updateGeometry()
+	}
+
+	/// Wave the flag looks a little crazy but intereesting to watch
+	///
+	/// - Parameter progress: time since animation started [0-duration] in seconds
+	func animateFlagMadness(progress: CGFloat) {
+		let yCount = Int(xyCount.height)
+		let xCount = Int(xyCount.width)
+		let furthest = sqrt(Float((yCount - 1)*(yCount - 1) + (xCount - 1)*(xCount - 1)))
+		let tNow = progress
+		let waveScale = Float(0.1 * (min(tNow / 10, 1)))
+		for x in 0..<xCount {
+			let distanceX = Float(x) / Float(xCount - 1)
+			for y in 0..<yCount {
+				let distance = Float(x * x + y * y) / furthest
+				let newZ = waveScale * (sinf(15 * (Float(tNow) - distance)) * distanceX)
 				self.triPositions[y * xCount + x].z = newZ
 			}
 		}
