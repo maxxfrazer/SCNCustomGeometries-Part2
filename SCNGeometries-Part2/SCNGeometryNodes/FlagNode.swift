@@ -9,25 +9,25 @@
 import SceneKit
 
 class FlagNode: SCNNode {
-	var xyCount: CGSize
-	var triPositions: [SCNVector3]
-	var timer: Timer? = nil
-	var indices: SCNGeometryElement
+	private var xyCount: CGSize
+	private var vertices: [SCNVector3]
+	private var timer: Timer? = nil
+	private var indices: SCNGeometryElement
 	var material = SCNMaterial()
-	var textureCoord: SCNGeometrySource
-	var flagAction: SCNAction!
+	private var textureCoord: SCNGeometrySource
+	private var flagAction: SCNAction!
 	/// Create a plane of width, height, vertex count and material diffuse
 	///
 	/// - Parameters:
 	///   - frameSize: physical width and height of the geometry
 	///   - xyCount: number of horizontal and vertical vertices
 	///   - diffuse: diffuse to be applied to the geometry; a color, image, or source of animated content.
-	init(frameSize: CGSize, xyCount: CGSize, diffuse: Any? = UIColor.white) {
+	public init(frameSize: CGSize, xyCount: CGSize, diffuse: Any? = UIColor.white) {
 		let (verts, textureMap, inds) = SCNGeometry.PlaneParts(size: frameSize, xyCount: xyCount)
 		self.xyCount = xyCount
 		self.textureCoord = textureMap
 		self.indices = inds
-		self.triPositions = verts
+		self.vertices = verts
 		super.init()
 		self.updateGeometry()
 		self.flagAction = SCNAction.customAction(duration: 100000) { (_, progress) in
@@ -40,8 +40,8 @@ class FlagNode: SCNNode {
 	}
 
 	/// Update the geometry of this node with the vertices, texture coordinates and indices
-	func updateGeometry() {
-		let src = SCNGeometrySource(vertices: triPositions)
+	private func updateGeometry() {
+		let src = SCNGeometrySource(vertices: vertices)
 		let geo = SCNGeometry(sources: [src, self.textureCoord], elements: [self.indices])
 		geo.materials = [self.material]
 		self.geometry = geo
@@ -52,7 +52,7 @@ class FlagNode: SCNNode {
 	/// Wave the flag using just the x coordinate
 	///
 	/// - Parameter progress: time since animation started [0-duration] in seconds
-	func animateFlag(progress: CGFloat) {
+	private func animateFlag(progress: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = Float((yCount - 1) + (xCount - 1))
@@ -64,7 +64,7 @@ class FlagNode: SCNNode {
 			// only the x position is effecting the translation here,
 			// that's why we calculate before going to the second while loop
 			for y in 0..<yCount {
-				self.triPositions[y * xCount + x].z = newZ
+				self.vertices[y * xCount + x].z = newZ
 			}
 		}
 		self.updateGeometry()
@@ -73,7 +73,7 @@ class FlagNode: SCNNode {
 	/// Wave the flag, using x and y coordinates
 	///
 	/// - Parameter progress: time since animation started [0-duration] in seconds
-	func animateFlagXY(progress: CGFloat) {
+	private func animateFlagXY(progress: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = Float((yCount - 1) + (xCount - 1))
@@ -84,7 +84,7 @@ class FlagNode: SCNNode {
 			for y in 0..<yCount {
 				let distance = distanceX + Float(y) / furthest
 				let newZ = waveScale * (sinf(15 * (Float(tNow) - distance)) * distanceX)
-				self.triPositions[y * xCount + x].z = newZ
+				self.vertices[y * xCount + x].z = newZ
 			}
 		}
 		self.updateGeometry()
@@ -93,7 +93,7 @@ class FlagNode: SCNNode {
 	/// Wave the flag looks a little crazy but intereesting to watch
 	///
 	/// - Parameter progress: time since animation started [0-duration] in seconds
-	func animateFlagMadness(progress: CGFloat) {
+	private func animateFlagMadness(progress: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = sqrt(Float((yCount - 1)*(yCount - 1) + (xCount - 1)*(xCount - 1)))
@@ -104,7 +104,7 @@ class FlagNode: SCNNode {
 			for y in 0..<yCount {
 				let distance = Float(x * x + y * y) / furthest
 				let newZ = waveScale * (sinf(15 * (Float(tNow) - distance)) * distanceX)
-				self.triPositions[y * xCount + x].z = newZ
+				self.vertices[y * xCount + x].z = newZ
 			}
 		}
 		self.updateGeometry()
