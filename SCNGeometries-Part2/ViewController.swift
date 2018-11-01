@@ -35,7 +35,7 @@ class ViewController: UIViewController, ARSCNViewDelegate {
 		lightNode.light = light
 		sceneView.pointOfView?.addChildNode(lightNode)
 
-		let newNode = FlagNode(frameSize: CGSize(width: 0.75, height: 0.375), xyCount: CGSize(width: 100, height: 100), diffuse: UIImage(named: "union_jack"))
+		let newNode = FlagNode(frameSize: CGSize(width: 0.75, height: 0.375), xyCount: CGSize(width: 100, height: 50), diffuse: UIImage(named: "union_jack"))
 		//		let newNode = BoxStretch(width: 0.3, height: 0.3, length: 0.3)
 		//		let newNode = SCNNode(geometry: SCNGeometry.Plane(width: 0.5, height: 1))
 		newNode.position.z = -1

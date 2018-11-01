@@ -33,7 +33,7 @@ class FlagNode: SCNNode {
 		self.flagAction = SCNAction.customAction(duration: 100000) { (_, progress) in
 			// using duration: Double.infinity or Double.greatestFiniteMagnitude breaks `progress`
 			// I'll try find some alternative that's nicer than `100000` later
-			self.animateFlagMadness(progress: progress)
+			self.animateFlagXY(progress: progress)
 		}
 		self.material.diffuse.contents = diffuse
 		self.runAction(SCNAction.repeatForever(self.flagAction))
