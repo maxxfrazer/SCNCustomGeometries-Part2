@@ -30,10 +30,10 @@ class FlagNode: SCNNode {
 		self.vertices = verts
 		super.init()
 		self.updateGeometry()
-		self.flagAction = SCNAction.customAction(duration: 100000) { (_, progress) in
-			// using duration: Double.infinity or Double.greatestFiniteMagnitude breaks `progress`
+		self.flagAction = SCNAction.customAction(duration: 100000) { (_, elapsedTime) in
+			// using duration: Double.infinity or Double.greatestFiniteMagnitude breaks `elapsedTime`
 			// I'll try find some alternative that's nicer than `100000` later
-			self.animateFlagXY(progress: progress)
+			self.animateFlagXY(elapsedTime: elapsedTime)
 		}
 		self.material.diffuse.contents = diffuse
 		self.runAction(SCNAction.repeatForever(self.flagAction))
@@ -47,16 +47,17 @@ class FlagNode: SCNNode {
 		self.geometry = geo
 	}
 
-
+	// I appreciate the next few functions are not very DRY, it's annoying me (author)
+	// but am keeping the math clear for the tutorial
 
 	/// Wave the flag using just the x coordinate
 	///
-	/// - Parameter progress: time since animation started [0-duration] in seconds
-	private func animateFlag(progress: CGFloat) {
+	/// - Parameter elapsedTime: time since animation started [0-duration] in seconds
+	private func animateFlag(elapsedTime: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = Float((yCount - 1) + (xCount - 1))
-		let tNow = progress
+		let tNow = elapsedTime
 		let waveScale = Float(0.1 * (min(tNow / 10, 1)))
 		for x in 0..<xCount {
 			let distance = Float(x) / furthest
@@ -72,12 +73,12 @@ class FlagNode: SCNNode {
 
 	/// Wave the flag, using x and y coordinates
 	///
-	/// - Parameter progress: time since animation started [0-duration] in seconds
-	private func animateFlagXY(progress: CGFloat) {
+	/// - Parameter elapsedTime: time since animation started [0-duration] in seconds
+	private func animateFlagXY(elapsedTime: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = Float((yCount - 1) + (xCount - 1))
-		let tNow = progress
+		let tNow = elapsedTime
 		let waveScale = Float(0.1 * (min(tNow / 10, 1)))
 		for x in 0..<xCount {
 			let distanceX = Float(x) / furthest
@@ -90,14 +91,14 @@ class FlagNode: SCNNode {
 		self.updateGeometry()
 	}
 
-	/// Wave the flag looks a little crazy but intereesting to watch
+	/// Wave the flag looks a little crazy but interesting to watch
 	///
-	/// - Parameter progress: time since animation started [0-duration] in seconds
-	private func animateFlagMadness(progress: CGFloat) {
+	/// - Parameter elapsedTime: time since animation started [0-duration] in seconds
+	private func animateFlagMadness(elapsedTime: CGFloat) {
 		let yCount = Int(xyCount.height)
 		let xCount = Int(xyCount.width)
 		let furthest = sqrt(Float((yCount - 1)*(yCount - 1) + (xCount - 1)*(xCount - 1)))
-		let tNow = progress
+		let tNow = elapsedTime
 		let waveScale = Float(0.1 * (min(tNow / 10, 1)))
 		for x in 0..<xCount {
 			let distanceX = Float(x) / Float(xCount - 1)

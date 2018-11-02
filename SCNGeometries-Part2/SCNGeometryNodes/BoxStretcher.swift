@@ -17,10 +17,8 @@ private func *(lhs: SCNVector3, rhs: Float) -> SCNVector3 {
 
 
 class BoxStretch: SCNNode {
-	let tStart = Date()
 	var vertices: [SCNVector3]
 	var timer: Timer? = nil
-	var pingTimer: Timer? = nil
 	var indices: SCNGeometryElement
 	var calculatedPositions: [CGFloat] = []
 	var material = SCNMaterial()
@@ -59,9 +57,9 @@ class BoxStretch: SCNNode {
 		self.removeAllActions()
 		let myCorner = corner ?? Int.random(in: 0..<8)
 		let startPos = self.vertices[myCorner]
-		self.runAction(SCNAction.customAction(duration: 3) { (_, timeElapsed) in
-//			self.animateCorner(index: myCorner, startPos: startPos, timeElapsed: timeElapsed)
-			self.animateCornerPrecalc(index: myCorner, startPos: startPos, timeElapsed: timeElapsed)
+		self.runAction(SCNAction.customAction(duration: 3) { (_, elapsedTime) in
+//			self.animateCorner(index: myCorner, startPos: startPos, elapsedTime: elapsedTime)
+			self.animateCornerPrecalc(index: myCorner, startPos: startPos, elapsedTime: elapsedTime)
 		}) {
 			// Completion block, making sure the vertex is put in the
 			// original place at the end
@@ -89,9 +87,9 @@ class BoxStretch: SCNNode {
 	/// - Parameters:
 	///   - index: index in the vertices array to update
 	///   - startPos: resting position of the vertex
-	///   - timeElapsed: time since the animation started
-	private func animateCorner(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
-		let tNow = getTNow(with: timeElapsed)
+	///   - elapsedTime: time since the animation started
+	private func animateCorner(index: Int, startPos: SCNVector3, elapsedTime: CGFloat) {
+		let tNow = getTNow(with: elapsedTime)
 		self.vertices[index] = startPos * (1 + tNow)
 		self.updateGeometry()
 	}
@@ -108,15 +106,14 @@ class BoxStretch: SCNNode {
 		}
 	}
 
-
 	/// Use the precalculated positions to animate the vertex
 	///
 	/// - Parameters:
 	///   - index: index in the vertices array to update
 	///   - startPos: resting position of the vertex
-	///   - timeElapsed: time since the animation started
-	private func animateCornerPrecalc(index: Int, startPos: SCNVector3, timeElapsed: CGFloat) {
-		let tNow = getTNowPrecalc(at: timeElapsed / 3)
+	///   - elapsedTime: time since the animation started
+	private func animateCornerPrecalc(index: Int, startPos: SCNVector3, elapsedTime: CGFloat) {
+		let tNow = getTNowPrecalc(at: elapsedTime / 3)
 		self.vertices[index] = startPos * (1 + tNow)
 		self.updateGeometry()
 	}

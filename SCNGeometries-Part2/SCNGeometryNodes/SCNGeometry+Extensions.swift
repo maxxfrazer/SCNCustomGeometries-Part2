@@ -86,7 +86,7 @@ extension SCNGeometry {
 			// back face
 			0, 4, 1,
 			1, 4, 5,
-			]
+		]
 		return (triPositions, SCNGeometryElement(indices: indices, primitiveType: .triangles))
 	}
 
