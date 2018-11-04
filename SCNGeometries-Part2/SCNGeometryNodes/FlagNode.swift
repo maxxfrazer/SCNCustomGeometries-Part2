@@ -10,6 +10,7 @@ import SceneKit
 
 class FlagNode: SCNNode {
 	private var xyCount: CGSize
+	private var geometrySize: CGSize
 	private var vertices: [SCNVector3]
 	private var timer: Timer? = nil
 	private var indices: SCNGeometryElement
@@ -26,6 +27,7 @@ class FlagNode: SCNNode {
 		let (verts, textureMap, inds) = SCNGeometry.PlaneParts(size: frameSize, xyCount: xyCount)
 		self.xyCount = xyCount
 		self.textureCoord = textureMap
+		self.geometrySize = frameSize
 		self.indices = inds
 		self.vertices = verts
 		super.init()
@@ -109,6 +111,15 @@ class FlagNode: SCNNode {
 			}
 		}
 		self.updateGeometry()
+	}
+
+	/// Adds a shader to the geometry instead of an animation
+	private func addShader() {
+		let waveShader = "_geometry.position.z = " +
+			"0.1 *" +
+			" sin(15 * (u_time - _geometry.position.x))" +
+		" * (0.5 + _geometry.position.x / \(self.geometrySize.width)); \n"
+		self.geometry?.shaderModifiers = [SCNShaderModifierEntryPoint.geometry: waveShader]
 	}
 
 	required init?(coder aDecoder: NSCoder) {
